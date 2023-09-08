@@ -1,0 +1,59 @@
+requirements.txt:
+```
+linkedin-api @ git+https://github.com/tomquirk/linkedin-api.git@e66bb5e217ab3383f4c2a6a25f8cd793b5b20b61
+python-dotenv
+```
+
+```
+python3 -m pip install -r requirements.txt
+python -m pip install -r requirements.txt
+
+```
+
+app.py:
+```python
+from os import environ
+from dotenv import load_dotenv
+import json
+
+from linkedin_api import Linkedin
+
+load_dotenv()
+
+LINKEDIN_USERNAME = environ.get('LINKEDIN_USERNAME')
+LINKEDIN_PASSWORD = environ.get('LINKEDIN_PASSWORD')
+#  print((LINKEDIN_USERNAME, LINKEDIN_PASSWORD))
+
+LINKEDIN_PROFILE_NAME = 'aurelien-duboc'
+"""
+https://github.com/tomquirk/linkedin-api
+Caution: This library is not officially supported by LinkedIn. 
+Using it might violate LinkedIn's Terms of Service. Use it at your own risk.
+
+https://github.com/tomquirk/linkedin-api#i-keep-getting-a-challenge
+linkedin_api.client.ChallengeException: CHALLENGE
+--> disable 2FA
+"""
+api = Linkedin(LINKEDIN_USERNAME, LINKEDIN_PASSWORD)
+
+
+def extract_account_info():
+    profile = api.get_profile(LINKEDIN_PROFILE_NAME)
+    with open('profile.json', 'wb') as f:
+        f.write(json.dumps(profile).encode())
+    contact_info = api.get_profile_contact_info(LINKEDIN_PROFILE_NAME)
+    with open('contact_info.json', 'wb') as f:
+        f.write(json.dumps(contact_info).encode())
+
+
+TARGET = 'jckourajian'
+
+#  https://github.com/tomquirk/linkedin-api/blob/e66bb5e217ab3383f4c2a6a25f8cd793b5b20b61/linkedin_api/linkedin.py#L1105
+response = api.add_connection(TARGET)
+print(response)
+"""
+return False is already a connection
+return False is not already a connection ? but validate
+return True is add connection is pending
+"""
+```
